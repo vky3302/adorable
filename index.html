@@ -1,1 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🫜 Adorable 記帳</title>
+  <style>
+    :root {
+      --primary-color: #ec4899; /* 換一個適合 Adorable 的粉紫色主題 */
+      --bg-color: #fdf2f8;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #fce7f3;
+      --expense-color: #ef4444;
+      --income-color: #10b981;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      font-size: 0.9rem;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10b981;
+      border-radius: 50%;
+    }
+
+    /* Tabs (只保留一個作為標題展示) */
+    .tabs-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      background-color: #fbcfe8;
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .summary-box h3 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .summary-amount {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .summary-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background-color: #f9fafb;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary-color);
+      background-color: #fff;
+    }
+
+    .btn-submit {
+      grid-column: 1 / -1; 
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-submit:hover {
+      background-color: #db2777;
+    }
+
+    /* Records List */
+    .records-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .record-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 10px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .record-item:last-child {
+      border-bottom: none;
+    }
+
+    .record-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      flex-wrap: wrap; 
+    }
+
+    .record-date {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6b7280;
+      min-width: 42px;
+    }
+
+    .badge-type {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .badge-expense { background-color: #fee2e2; color: #ef4444; }
+    .badge-income { background-color: #d1fae5; color: #10b981; }
+
+    .record-payment {
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      background: #fce7f3;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .record-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .record-amount {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .btn-delete:hover {
+      color: #ef4444;
+    }
+
+    /* 明細清單標頭與排序按鈕 */
+    .records-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .records-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .btn-sort {
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #374151;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-sort:hover {
+      background-color: #e5e7eb;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="status-badge"><span class="status-dot"></span> 💰 已連線至 Google Sheets</div>
+    </header>
+
+    <!-- 專屬標題 (取代原本的分頁) -->
+    <div class="tabs-container">
+      <div class="tab-btn">🫜 Adorable 專屬帳本</div>
+    </div>
+
+    <!-- 月份篩選器 -->
+    <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+      <input type="month" id="monthFilter" onchange="handleMonthChange()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; background: #fff;" title="選擇月份" />
+    </div>
+
+    <!-- Summary Box -->
+    <div class="card summary-grid">
+      <div class="summary-box">
+        <h3>韓幣 (KRW) 淨利潤</h3>
+        <div class="summary-amount" id="krwTotal">₩ 0</div>
+        <div class="summary-meta">
+          <span id="krwIncome">總收入: ₩ 0</span>
+          <span id="krwExpense">總支出: ₩ 0</span>
+        </div>
+      </div>
+      <div class="summary-box">
+        <h3>台幣 (TWD) 淨利潤</h3>
+        <div class="summary-amount" id="twdTotal">NT$ 0</div>
+        <div class="summary-meta">
+          <span id="twdIncome">總收入: NT$ 0</span>
+          <span id="twdExpense">總支出: NT$ 0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <div class="card">
+      <form id="recordForm" onsubmit="handleSubmit(event)">
+        <div class="form-grid">
+          <!-- 上半部 -->
+          <input type="date" id="formDate" required />
+          <select id="formType">
+            <option value="支出">支出</option>
+            <option value="收入">收入</option>
+          </select>
+          <select id="formSubCategory"></select>
+          <input type="text" id="formNote" placeholder="項目名稱 (選填)" />
+          
+          <!-- 下半部 -->
+          <input type="number" id="formAmount" placeholder="金額" required />
+          <select id="formCurrency">
+            <option value="KRW">₩ KRW</option>
+            <option value="TWD">NT$ TWD</option>
+          </select>
+          
+          <!-- 支付方式選單 -->
+          <select id="formPayment"></select>
+
+          <!-- 送出按鈕 -->
+          <button type="submit" class="btn-submit" id="btnSubmit">同步送出</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Record List Card -->
+    <div class="card">
+      <div class="records-header">
+        <span class="records-title">📝 明細清單</span>
+        <button class="btn-sort" onclick="toggleSort()">
+          📅 依日期排序 <span id="sortIcon">⬇️</span>
+        </button>
+      </div>
+      <div class="records-list" id="recordsContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ 請填入您的 Google Apps Script 部署 URL
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxX2Tj5Ocml0BJltic2ufUwhKiH7QektBf4J_bXB5o2oZCpJYYWWZ6yxqT5ZJJ91MTqvw/exec";
+
+    let allRecords = [];
+
+    // Adorable 專屬細項
+    const subCategories = ['工作室房租', '進貨成本', '包材耗材', '國際運費', '包裹稅金', '廣告行銷', '網拍收入', '小禮物', '薪水', '稅金', '退款', '運費', '官網費用'];
+
+    // Adorable 專屬支付方式
+    const paymentOptions = ['dawho', 'daway', '國泰世華', '台新', '우리', '대한', '네이버카드', 'cash'];
+
+    window.onload = () => {
+      document.getElementById('formDate').valueAsDate = new Date();
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      document.getElementById('monthFilter').value = `${yyyy}-${mm}`;
+
+      updateSubCategoryOptions();
+      updatePaymentOptions();
+      fetchRecords();
+    };
+
+    function handleMonthChange() {
+      renderRecords();
+      updateSummary();
+    }
+
+    function updatePaymentOptions() {
+      const select = document.getElementById('formPayment');
+      select.innerHTML = '';
+      paymentOptions.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateSubCategoryOptions() {
+      const select = document.getElementById('formSubCategory');
+      select.innerHTML = '';
+      subCategories.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        select.appendChild(opt);
+      });
+    }
+
+    function formatShortDate(dateVal) {
+      if (!dateVal) return '';
+      const d = new Date(dateVal);
+      if (!isNaN(d.getTime())) {
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      }
+      const parts = dateVal.toString().split(/[-/]/);
+      if (parts.length >= 3) {
+        return `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
+      }
+      return dateVal;
+    }
+
+    // 只抓取 Adorable 的資料
+    function getFilteredRecords() {
+      const selectedMonth = document.getElementById('monthFilter').value; 
+      
+      return allRecords.filter(r => {
+        if (!r.date) return false;
+        const d = new Date(r.date);
+        if (isNaN(d.getTime())) return false; 
+        const rYear = d.getFullYear();
+        const rMonth = String(d.getMonth() + 1).padStart(2, '0');
+        const rYyyyMm = `${rYear}-${rMonth}`; 
+        if (rYyyyMm !== selectedMonth) return false;
+
+        const cat = (r.category || '').toLowerCase();
+        
+        // 嚴格篩選只顯示 adorable
+        return cat === 'adorable';
+      });
+    }
+
+    async function fetchRecords() {
+      try {
+        const res = await fetch(GAS_API_URL);
+        const data = await res.json();
+        allRecords = data;
+        renderRecords();
+        updateSummary();
+      } catch (err) {
+        console.error("載入失敗:", err);
+      }
+    }
+
+    function renderRecords() {
+      const container = document.getElementById('recordsContainer');
+      container.innerHTML = '';
+
+      const filtered = getFilteredRecords();
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:#9ca3af; padding: 20px;">尚無紀錄</div>`;
+        return;
+      }
+
+      filtered.forEach((r) => {
+        const item = document.createElement('div');
+        item.className = 'record-item';
+
+        const shortDate = formatShortDate(r.date);
+        const paymentTag = r.payment ? `<span class="record-payment">💳 ${r.payment}</span>` : '';
+
+        item.innerHTML = `
+          <div class="record-left">
+            <span class="record-date">${shortDate}</span>
+            <span class="badge-type ${r.type === '支出' ? 'badge-expense' : 'badge-income'}">${r.type}</span>
+            <strong>${r.subCategory}</strong> ${r.note ? ` - ${r.note}` : ''}
+            ${paymentTag}
+          </div>
+          <div class="record-right">
+            <span class="record-amount">${r.currency === 'KRW' ? '₩' : 'NT$'} ${Number(r.amount).toLocaleString()}</span>
+            <button class="btn-delete" title="刪除此筆" onclick="handleDelete('${r.id}')">🗑️</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // 計算總計 (事業用：改為顯示淨利潤與收入/支出明細)
+    function updateSummary() {
+      const filtered = getFilteredRecords();
+      
+      let krwExp = 0, krwInc = 0;
+      let twdExp = 0, twdInc = 0;
+
+      filtered.forEach(r => {
+        const amount = Number(r.amount) || 0;
+        if (r.currency === 'KRW') {
+          if (r.type === '支出') krwExp += amount; else krwInc += amount;
+        } else {
+          if (r.type === '支出') twdExp += amount; else twdInc += amount;
+        }
+      });
+
+      // 淨利潤 = 收入 - 支出
+      const krwNet = krwInc - krwExp;
+      const twdNet = twdInc - twdExp;
+
+      document.getElementById('krwTotal').textContent = `₩ ${krwNet.toLocaleString()}`;
+      // 如果利潤是負的，讓數字變成紅色提醒
+      document.getElementById('krwTotal').style.color = krwNet < 0 ? '#ef4444' : 'var(--text-main)';
+      document.getElementById('krwIncome').textContent = `總收入: ₩ ${krwInc.toLocaleString()}`;
+      document.getElementById('krwExpense').textContent = `總支出: ₩ ${krwExp.toLocaleString()}`;
+
+      document.getElementById('twdTotal').textContent = `NT$ ${twdNet.toLocaleString()}`;
+      document.getElementById('twdTotal').style.color = twdNet < 0 ? '#ef4444' : 'var(--text-main)';
+      document.getElementById('twdIncome').textContent = `總收入: NT$ ${twdInc.toLocaleString()}`;
+      document.getElementById('twdExpense').textContent = `總支出: NT$ ${twdExp.toLocaleString()}`;
+    }
+
+    // 新增記錄
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const newRecord = {
+        action: 'add',
+        id: 'id_' + new Date().getTime(),
+        category: 'adorable', // 固定為 adorable
+        date: document.getElementById('formDate').value,
+        type: document.getElementById('formType').value,
+        note: document.getElementById('formNote').value,
+        subCategory: document.getElementById('formSubCategory').value,
+        owner: 'adorable', // 背景自動標記，不用選擇
+        amount: Number(document.getElementById('formAmount').value),
+        currency: document.getElementById('formCurrency').value,
+        payment: document.getElementById('formPayment').value
+      };
+
+      allRecords.unshift(newRecord);
+      
+      const newD = new Date(newRecord.date);
+      const newYyyyMm = `${newD.getFullYear()}-${String(newD.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('monthFilter').value = newYyyyMm;
+
+      renderRecords();
+      updateSummary();
+
+      document.getElementById('formNote').value = '';
+      document.getElementById('formAmount').value = '';
+
+      try {
+        await fetch(GAS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newRecord)
+        });
+      } catch (err) {
+        console.error("送出失敗:", err);
+      }
+    }
+
+    // 刪除記錄
+    async function handleDelete(recordId) {
+      if (!confirm('確定要刪除這筆紀錄嗎？')) return;
+
+      allRecords = allRecords.filter(r => r.id !== recordId);
+      renderRecords();
+      updateSummary();
+
+      try {
+        await fetch(GAS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'delete',
+            category: 'adorable',
+            id: recordId
+          })
+        });
+      } catch (err) {
+        console.error("刪除失敗:", err);
+      }
+    }
+
+    // 排序邏輯
+    let isDescending = true; 
+
+    function toggleSort() {
+      isDescending = !isDescending;
+      
+      document.getElementById('sortIcon').textContent = isDescending ? '⬇️' : '⬆️';
+
+      allRecords.sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        
+        if (isDescending) {
+          return dateB - dateA; 
+        } else {
+          return dateA - dateB; 
+        }
+      });
+
+      renderRecords();
+    }
+  </script>
+</body>
+</html>
