@@ -6,12 +6,12 @@
   <title>🫜 Adorable 記帳</title>
   <style>
     :root {
-      --primary-color: #ec4899; /* 換一個適合 Adorable 的粉紫色主題 */
-      --bg-color: #fdf2f8;
+      --primary-color: #10b981; /* 翡翠綠 (主色) */
+      --bg-color: #f0fdf4;      /* 淺綠色背景 */
       --card-bg: #ffffff;
       --text-main: #1f2937;
       --text-muted: #6b7280;
-      --border-color: #fce7f3;
+      --border-color: #d1fae5;  /* 淺綠色邊框 */
       --expense-color: #ef4444;
       --income-color: #10b981;
     }
@@ -65,7 +65,7 @@
     .tabs-container {
       display: grid;
       grid-template-columns: 1fr;
-      background-color: #fbcfe8;
+      background-color: #d1fae5; /* 淺綠色標題底 */
       padding: 4px;
       border-radius: 12px;
       gap: 4px;
@@ -155,7 +155,7 @@
     }
 
     .btn-submit:hover {
-      background-color: #db2777;
+      background-color: #059669; /* 懸停時變深綠色 */
     }
 
     /* Records List */
@@ -204,7 +204,7 @@
     .record-payment {
       font-size: 0.8rem;
       color: var(--primary-color);
-      background: #fce7f3;
+      background: #d1fae5; /* 淺綠色支付標籤底 */
       padding: 2px 6px;
       border-radius: 4px;
     }
@@ -485,7 +485,7 @@
       });
     }
 
-    // 計算總計 (事業用：改為顯示淨利潤與收入/支出明細)
+    // 計算總計 (事業用：顯示淨利潤與收入/支出明細)
     function updateSummary() {
       const filtered = getFilteredRecords();
       
