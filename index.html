@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🫜 Adorable 記帳</title>
+    <title>🫜 Adorable 記帳系統</title>
     <style>
         :root {
             --primary-color: #a59b98;     /* 莫蘭迪奶茶粉/灰棕 */
-            --primary-hover: #8d8380;     /* 按鈕懸停深色 */
-            --bg-color: #f4f2f1;          /* 溫和的淺灰底色 */
+            --primary-hover: #8d8380;     
+            --bg-color: #f4f2f1;          
             --card-bg: #ffffff;
-            --text-main: #4d4948;         /* 柔和的深灰棕色 */
-            --text-muted: #948e8d;        /* 次要文字色 */
-            --border-color: #e8e4e3;      /* 柔和邊框色 */
+            --text-main: #4d4948;         
+            --text-muted: #948e8d;        
+            --border-color: #e8e4e3;      
             --expense-color: #c48482;     /* 莫蘭迪紅 */
             --income-color: #859c8f;      /* 莫蘭迪綠 */
-            --tag-bg: #f0eceb;            /* 標籤底色 */
+            --tag-bg: #f0eceb;            
         }
         * {box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
         body {background-color: var(--bg-color); color: var(--text-main); padding: 24px 16px; display: flex; justify-content: center;}
@@ -64,110 +64,92 @@
 <body>
     <div class="container">
         <header>
-            <div class="status-badge"><span class="status-dot"></span> 💰 已連線至 Google Sheets</div>
+            <div class="status-badge"><span class="status-dot"></span> 💰 Adorable 記帳連線中</div>
         </header>
 
         <div class="tabs-container">
-            <button class="tab-btn active" id="tabExpense" onclick="switchTab('expense')">🫜 專屬帳本</button>
-            <button class="tab-btn" id="tabRestock" onclick="switchTab('restock')">📦 進貨表</button>
+            <button class="tab-btn active" id="tabRestock" onclick="switchTab('restock')">📦 1. 東大門進貨</button>
+            <button class="tab-btn" id="tabExpense" onclick="switchTab('expense')">🫜 2. 收支表</button>
         </div>
 
-        <!-- 專屬帳本 -->
-        <div id="expenseSection" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- 1. 東大門進貨表 -->
+        <div id="restockSection" style="display: flex; flex-direction: column; gap: 16px;">
             <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <input type="month" id="monthFilter" onchange="handleMonthChange()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" title="選擇月份" />
+                <input type="month" id="restockMonthFilter" onchange="renderRestockRecords()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" />
+            </div>
+
+            <div class="card">
+                <form onsubmit="handleRestockSubmit(event)">
+                    <div class="form-grid">
+                        <input type="date" id="rDate" required />
+                        <input type="text" id="rStore" placeholder="檔口名稱 (選填)" />
+                        <input type="text" id="rItem" placeholder="品項名稱" required />
+                        <input type="number" id="rPrice" placeholder="單價" required />
+                        <input type="number" id="rQty" placeholder="件數 (未填預設為1)" />
+                        <select id="rCurrency">
+                            <option value="KRW">₩ KRW</option>
+                            <option value="TWD">NT$ TWD</option>
+                        </select>
+                        <select id="rPayment"></select>
+                        <button type="submit" class="btn-submit">新增進貨紀錄</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="records-header">
+                    <span class="records-title">📦 進貨明細清單</span>
+                    <button class="btn-sort" onclick="toggleRestockSort()">📅 依日期排序 <span id="restockSortIcon">⬇️</span></button>
+                </div>
+                <div class="records-list" id="restockContainer"></div>
+            </div>
+        </div>
+
+        <!-- 2. 收支表 -->
+        <div id="expenseSection" style="display: none; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+                <input type="month" id="monthFilter" onchange="renderExpenseRecords()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" />
             </div>
 
             <div class="card summary-grid">
                 <div class="summary-box">
                     <h3>韓幣 (KRW) 淨利潤</h3>
                     <div class="summary-amount" id="krwTotal">₩ 0</div>
-                    <div class="summary-meta">
-                        <span id="krwIncome">總收入: ₩ 0</span>
-                        <span id="krwExpense">總支出: ₩ 0</span>
-                    </div>
+                    <div class="summary-meta"><span id="krwIncome">總收入: ₩ 0</span><span id="krwExpense">總支出: ₩ 0</span></div>
                 </div>
                 <div class="summary-box">
                     <h3>台幣 (TWD) 淨利潤</h3>
                     <div class="summary-amount" id="twdTotal">NT$ 0</div>
-                    <div class="summary-meta">
-                        <span id="twdIncome">總收入: NT$ 0</span>
-                        <span id="twdExpense">總支出: NT$ 0</span>
-                    </div>
+                    <div class="summary-meta"><span id="twdIncome">總收入: NT$ 0</span><span id="twdExpense">總支出: NT$ 0</span></div>
                 </div>
             </div>
 
             <div class="card">
-                <form id="recordForm" onsubmit="handleSubmit(event)">
+                <form onsubmit="handleExpenseSubmit(event)">
                     <div class="form-grid">
-                        <input type="date" id="formDate" required />
-                        <select id="formType">
+                        <input type="date" id="eDate" required />
+                        <select id="eType">
                             <option value="支出">支出</option>
                             <option value="收入">收入</option>
                         </select>
-                        <select id="formSubCategory"></select>
-                        <input type="text" id="formNote" placeholder="項目名稱 (選填)" />
-                        <input type="number" id="formAmount" placeholder="金額" required />
-                        <select id="formCurrency">
+                        <select id="eSubCategory"></select>
+                        <input type="number" id="eAmount" placeholder="金額" required />
+                        <select id="eCurrency">
                             <option value="KRW">₩ KRW</option>
                             <option value="TWD">NT$ TWD</option>
                         </select>
-                        <select id="formPayment"></select>
-                        <button type="submit" class="btn-submit" id="btnSubmit">同步送出</button>
+                        <select id="ePayment"></select>
+                        <button type="submit" class="btn-submit">新增收支紀錄</button>
                     </div>
                 </form>
             </div>
 
             <div class="card">
                 <div class="records-header">
-                    <span class="records-title">📝 明細清單</span>
-                    <button class="btn-sort" onclick="toggleSort()">
-                        📅 依日期排序 <span id="sortIcon">⬇️</span>
-                    </button>
+                    <span class="records-title">📝 收支明細清單</span>
+                    <button class="btn-sort" onclick="toggleExpenseSort()">📅 依日期排序 <span id="expenseSortIcon">⬇️</span></button>
                 </div>
-                <div class="records-list" id="recordsContainer"></div>
-            </div>
-        </div>
-
-        <!-- 進貨表 -->
-        <div id="restockSection" style="display: none; flex-direction: column; gap: 16px; margin-top: 4px;">
-            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <input type="month" id="restockMonthFilter" onchange="handleRestockMonthChange()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" title="選擇月份" />
-            </div>
-
-            <div class="card">
-                <form id="restockForm" onsubmit="handleRestockSubmit(event)">
-                    <div class="form-grid">
-                        <input type="date" id="rDate" title="日期" />
-                        <input type="text" id="rStore" placeholder="檔口名稱 (選填)" />
-                        <input type="text" id="rItem" placeholder="品項名稱" />
-                        <select id="rCurrency">
-                            <option value="KRW">₩ KRW</option>
-                            <option value="TWD">NT$ TWD</option>
-                        </select>
-                        <input type="number" id="rPrice" placeholder="單價 (選填)" />
-                        <input type="number" id="rQty" placeholder="數量 (選填)" />
-                        <select id="rPayment">
-                            <option value="">選擇付款方式...</option>
-                            <option value="現金">現金</option>
-                            <option value="dawho">dawho</option>
-                            <option value="台新">台新</option>
-                            <option value="네이버카드">네이버카드</option>
-                        </select>
-                        <button type="submit" class="btn-submit">新增進貨紀錄</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card">
-                <div class="records-header">
-                    <span class="records-title">📦 進貨明細</span>
-                    <button class="btn-sort" onclick="toggleRestockSort()">
-                        📅 依日期排序 <span id="restockSortIcon">⬇️</span>
-                    </button>
-                </div>
-                <div class="records-list" id="restockContainer">
-                    <div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無進貨紀錄</div>
-                </div>
+                <div class="records-list" id="expenseContainer"></div>
             </div>
         </div>
     </div>
@@ -175,101 +157,262 @@
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQWDfbcth0RfOJGsbueyWiY93gXUXinWy4bFhl3Qo_RExKyhJ_M1VvYpwlXKE49WGZ/exec";
         
-        let allRecords = [];
         const subCategories = ['工作室房租', '進貨成本', '包材耗材', '國際運費', '包裹稅金', '廣告行銷', '網拍收入', '小禮物', '薪水', '稅金', '退款', '運費', '官網費用'];
         const paymentOptions = ['dawho', 'daway', '國泰世華', '台新', '우리', '대한', '네이버카드', 'cash'];
-        let isDescending = true;
-        let isRestockDescending = true;
+
         let restockRecords = [];
+        let expenseRecords = [];
+        let isRestockDesc = true;
+        let isExpenseDesc = true;
 
         window.onload = () => {
-            document.getElementById('formDate').valueAsDate = new Date();
-            document.getElementById('rDate').valueAsDate = new Date();
             const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const currentYm = `${yyyy}-${mm}`;
-            document.getElementById('monthFilter').value = currentYm;
-            document.getElementById('restockMonthFilter').value = currentYm;
-            updateSubCategoryOptions();
-            updatePaymentOptions();
+            const todayStr = today.toISOString().split('T')[0];
+            const yyyyMm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            
+            document.getElementById('rDate').value = todayStr;
+            document.getElementById('eDate').value = todayStr;
+            document.getElementById('restockMonthFilter').value = yyyyMm;
+            document.getElementById('monthFilter').value = yyyyMm;
+
+            populateSelect('rPayment', paymentOptions);
+            populateSelect('ePayment', paymentOptions);
+            populateSelect('eSubCategory', subCategories);
+
             fetchRecords();
         };
 
-        function switchTab(tabName) {
-            if (tabName === 'expense') {
-                document.getElementById('expenseSection').style.display = 'flex';
-                document.getElementById('restockSection').style.display = 'none';
-                document.getElementById('tabExpense').classList.add('active');
-                document.getElementById('tabRestock').classList.remove('active');
-            } else {
-                document.getElementById('expenseSection').style.display = 'none';
+        function populateSelect(id, items) {
+            const select = document.getElementById(id);
+            select.innerHTML = '';
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
+        }
+
+        function switchTab(tab) {
+            if (tab === 'restock') {
                 document.getElementById('restockSection').style.display = 'flex';
-                document.getElementById('tabExpense').classList.remove('active');
+                document.getElementById('expenseSection').style.display = 'none';
                 document.getElementById('tabRestock').classList.add('active');
+                document.getElementById('tabExpense').classList.remove('active');
+            } else {
+                document.getElementById('restockSection').style.display = 'none';
+                document.getElementById('expenseSection').style.display = 'flex';
+                document.getElementById('tabRestock').classList.remove('active');
+                document.getElementById('tabExpense').classList.add('active');
             }
         }
 
-        function handleRestockSubmit(e) {
+        function formatShortDate(dateVal) {
+            if (!dateVal) return '';
+            const d = new Date(dateVal);
+            return !isNaN(d.getTime()) ? `${d.getMonth() + 1}/${d.getDate()}` : dateVal;
+        }
+
+        // --- 1. 東大門進貨表邏輯 ---
+        async function handleRestockSubmit(e) {
             e.preventDefault();
             const price = Number(document.getElementById('rPrice').value) || 0;
-            const qty = Number(document.getElementById('rQty').value) || 0;
+            const inputQty = document.getElementById('rQty').value.trim();
+            const qty = inputQty === '' ? 1 : Number(inputQty);
             const total = price * qty;
-            const rDateVal = document.getElementById('rDate').value;
-            
-            const newRestock = {
-                type: 'restock', 
+            const dateVal = document.getElementById('rDate').value;
+
+            const record = {
+                type: 'restock',
                 action: 'add',
-                id: 'r_' + new Date().getTime(),
-                date: rDateVal,
-                store: document.getElementById('rStore').value.trim(),
+                id: 'r_' + Date.now(),
+                date: dateVal,
+                store: document.getElementById('rStore').value.trim() || '未填檔口',
                 item: document.getElementById('rItem').value,
-                currency: document.getElementById('rCurrency').value,
                 price: price,
                 qty: qty,
                 total: total,
+                currency: document.getElementById('rCurrency').value,
                 payment: document.getElementById('rPayment').value
             };
-            
-            restockRecords.unshift(newRestock);
 
-            restockRecords.sort((a, b) => {
-                const dateA = a.date ? new Date(a.date).getTime() : 0;
-                const dateB = b.date ? new Date(b.date).getTime() : 0;
-                return isRestockDescending ? (dateB - dateA) : (dateA - dateB);
-            });
-
-            if (rDateVal) {
-                const d = new Date(rDateVal);
-                if (!isNaN(d.getTime())) {
-                    const yyyyMm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                    document.getElementById('restockMonthFilter').value = yyyyMm;
-                }
-            }
-
+            restockRecords.unshift(record);
+            if (dateVal) document.getElementById('restockMonthFilter').value = dateVal.substring(0, 7);
             renderRestockRecords();
+
             document.getElementById('rStore').value = '';
             document.getElementById('rItem').value = '';
             document.getElementById('rPrice').value = '';
             document.getElementById('rQty').value = '';
-            document.getElementById('rPayment').value = '';
 
             try {
-                fetch(GAS_API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(newRestock)
-                });
-            } catch (err) {
-                console.error("送出失敗:", err);
-            }
+                fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
+            } catch (err) { console.error(err); }
         }
 
-        function getFilteredRestockRecords() {
+        function toggleRestockSort() {
+            isRestockDesc = !isRestockDesc;
+            document.getElementById('restockSortIcon').textContent = isRestockDesc ? '⬇️' : '⬆️';
+            restockRecords.sort((a, b) => isRestockDesc ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
+            renderRestockRecords();
+        }
+
+        function renderRestockRecords() {
+            const container = document.getElementById('restockContainer');
+            container.innerHTML = '';
             const selectedMonth = document.getElementById('restockMonthFilter').value;
-            return restockRecords.filter(r => {
-                if (!r.date) return false;
-                const d = new Date(r.date);
-                if (isNaN(d.getTime())) return false;
-                const rYyyyMm = `${d.getFullYear()}-${String(d.getMonth() + 1
+            const filtered = restockRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無進貨紀錄</div>`;
+                return;
+            }
+
+            filtered.forEach(r => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'record-item';
+                itemDiv.innerHTML = `
+                    <div class="record-left" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="record-date">${formatShortDate(r.date)}</span>
+                            <strong>${r.store}</strong>
+                            <span class="record-payment">💳 ${r.payment}</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                            ${r.item} | 單價: ${r.price.toLocaleString()} × ${r.qty}件
+                        </div>
+                    </div>
+                    <div class="record-right" style="flex-direction: column; align-items: flex-end; gap: 2px;">
+                        <span class="record-amount">${r.currency === 'KRW' ? '₩' : 'NT$'} ${r.total.toLocaleString()}</span>
+                        <button class="btn-delete" onclick="deleteRecord('restock', '${r.id}')">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        // --- 2. 收支表邏輯 ---
+        async function handleExpenseSubmit(e) {
+            e.preventDefault();
+            const dateVal = document.getElementById('eDate').value;
+            const record = {
+                type: 'adorable',
+                action: 'add',
+                id: 'e_' + Date.now(),
+                date: dateVal,
+                typeVal: document.getElementById('eType').value,
+                subCategory: document.getElementById('eSubCategory').value,
+                amount: Number(document.getElementById('eAmount').value) || 0,
+                currency: document.getElementById('eCurrency').value,
+                payment: document.getElementById('ePayment').value
+            };
+
+            expenseRecords.unshift(record);
+            if (dateVal) document.getElementById('monthFilter').value = dateVal.substring(0, 7);
+            renderExpenseRecords();
+            updateSummary();
+
+            document.getElementById('eAmount').value = '';
+
+            try {
+                fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
+            } catch (err) { console.error(err); }
+        }
+
+        function toggleExpenseSort() {
+            isExpenseDesc = !isExpenseDesc;
+            document.getElementById('expenseSortIcon').textContent = isExpenseDesc ? '⬇️' : '⬆️';
+            expenseRecords.sort((a, b) => isExpenseDesc ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
+            renderExpenseRecords();
+        }
+
+        function renderExpenseRecords() {
+            const container = document.getElementById('expenseContainer');
+            container.innerHTML = '';
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const filtered = expenseRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無收支紀錄</div>`;
+                updateSummary();
+                return;
+            }
+
+            filtered.forEach(r => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'record-item';
+                itemDiv.innerHTML = `
+                    <div class="record-left">
+                        <span class="record-date">${formatShortDate(r.date)}</span>
+                        <span class="badge-type ${r.typeVal === '支出' ? 'badge-expense' : 'badge-income'}">${r.typeVal}</span>
+                        <strong>${r.subCategory}</strong>
+                        <span class="record-payment">💳 ${r.payment}</span>
+                    </div>
+                    <div class="record-right">
+                        <span class="record-amount">${r.currency === 'KRW' ? '₩' : 'NT$'} ${r.amount.toLocaleString()}</span>
+                        <button class="btn-delete" onclick="deleteRecord('expense', '${r.id}')">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const filtered = expenseRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
+            let krwExp = 0, krwInc = 0, twdExp = 0, twdInc = 0;
+
+            filtered.forEach(r => {
+                if (r.currency === 'KRW') {
+                    if (r.typeVal === '支出') krwExp += r.amount; else krwInc += r.amount;
+                } else {
+                    if (r.typeVal === '支出') twdExp += r.amount; else twdInc += r.amount;
+                }
+            });
+
+            const krwNet = krwInc - krwExp;
+            const twdNet = twdInc - twdExp;
+
+            document.getElementById('krwTotal').textContent = `₩ ${krwNet.toLocaleString()}`;
+            document.getElementById('krwTotal').style.color = krwNet < 0 ? '#c48482' : 'var(--text-main)';
+            document.getElementById('krwIncome').textContent = `總收入: ₩ ${krwInc.toLocaleString()}`;
+            document.getElementById('krwExpense').textContent = `總支出: ₩ ${krwExp.toLocaleString()}`;
+
+            document.getElementById('twdTotal').textContent = `NT$ ${twdNet.toLocaleString()}`;
+            document.getElementById('twdTotal').style.color = twdNet < 0 ? '#c48482' : 'var(--text-main)';
+            document.getElementById('twdIncome').textContent = `總收入: NT$ ${twdInc.toLocaleString()}`;
+            document.getElementById('twdExpense').textContent = `總支出: NT$ ${twdExp.toLocaleString()}`;
+        }
+
+        async function deleteRecord(type, id) {
+            if (!confirm('確定要刪除這筆紀錄嗎？')) return;
+            if (type === 'restock') {
+                restockRecords = restockRecords.filter(r => r.id !== id);
+                renderRestockRecords();
+            } else {
+                expenseRecords = expenseRecords.filter(r => r.id !== id);
+                renderExpenseRecords();
+            }
+            try {
+                fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'delete', id: id }) });
+            } catch (err) { console.error(err); }
+        }
+
+        async function fetchRecords() {
+            try {
+                const res = await fetch(GAS_API_URL);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    restockRecords = data.filter(d => d.type === 'restock');
+                    expenseRecords = data.filter(d => d.type === 'adorable' || !d.type);
+                    renderRestockRecords();
+                    renderExpenseRecords();
+                }
+            } catch (err) {
+                console.error("載入失敗:", err);
+            }
+        }
+    </script>
+</body>
+</html>
