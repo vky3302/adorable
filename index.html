@@ -75,4 +75,104 @@
         <!-- 專屬帳本 -->
         <div id="expenseSection" style="display: flex; flex-direction: column; gap: 16px;">
             <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <input type="month" id
+                <input type="month" id="monthFilter" onchange="handleMonthChange()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" title="選擇月份" />
+            </div>
+
+            <div class="card summary-grid">
+                <div class="summary-box">
+                    <h3>韓幣 (KRW) 淨利潤</h3>
+                    <div class="summary-amount" id="krwTotal">₩ 0</div>
+                    <div class="summary-meta">
+                        <span id="krwIncome">總收入: ₩ 0</span>
+                        <span id="krwExpense">總支出: ₩ 0</span>
+                    </div>
+                </div>
+                <div class="summary-box">
+                    <h3>台幣 (TWD) 淨利潤</h3>
+                    <div class="summary-amount" id="twdTotal">NT$ 0</div>
+                    <div class="summary-meta">
+                        <span id="twdIncome">總收入: NT$ 0</span>
+                        <span id="twdExpense">總支出: NT$ 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <form id="recordForm" onsubmit="handleSubmit(event)">
+                    <div class="form-grid">
+                        <input type="date" id="formDate" required />
+                        <select id="formType">
+                            <option value="支出">支出</option>
+                            <option value="收入">收入</option>
+                        </select>
+                        <select id="formSubCategory"></select>
+                        <input type="text" id="formNote" placeholder="項目名稱 (選填)" />
+                        <input type="number" id="formAmount" placeholder="金額" required />
+                        <select id="formCurrency">
+                            <option value="KRW">₩ KRW</option>
+                            <option value="TWD">NT$ TWD</option>
+                        </select>
+                        <select id="formPayment"></select>
+                        <button type="submit" class="btn-submit" id="btnSubmit">同步送出</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="records-header">
+                    <span class="records-title">📝 明細清單</span>
+                    <button class="btn-sort" onclick="toggleSort()">
+                        📅 依日期排序 <span id="sortIcon">⬇️</span>
+                    </button>
+                </div>
+                <div class="records-list" id="recordsContainer"></div>
+            </div>
+        </div>
+
+        <!-- 進貨表 -->
+        <div id="restockSection" style="display: none; flex-direction: column; gap: 16px; margin-top: 4px;">
+            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+                <input type="month" id="restockMonthFilter" onchange="handleRestockMonthChange()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" title="選擇月份" />
+            </div>
+
+            <div class="card">
+                <form id="restockForm" onsubmit="handleRestockSubmit(event)">
+                    <div class="form-grid">
+                        <input type="date" id="rDate" title="日期" />
+                        <input type="text" id="rStore" placeholder="檔口名稱 (選填)" />
+                        <input type="text" id="rItem" placeholder="品項名稱" />
+                        <select id="rCurrency">
+                            <option value="KRW">₩ KRW</option>
+                            <option value="TWD">NT$ TWD</option>
+                        </select>
+                        <input type="number" id="rPrice" placeholder="單價 (選填)" />
+                        <input type="number" id="rQty" placeholder="數量 (選填)" />
+                        <select id="rPayment">
+                            <option value="">選擇付款方式...</option>
+                            <option value="現金">現金</option>
+                            <option value="dawho">dawho</option>
+                            <option value="台新">台新</option>
+                            <option value="네이버카드">네이버카드</option>
+                        </select>
+                        <button type="submit" class="btn-submit">新增進貨紀錄</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <div class="records-header">
+                    <span class="records-title">📦 進貨明細</span>
+                    <button class="btn-sort" onclick="toggleRestockSort()">
+                        📅 依日期排序 <span id="restockSortIcon">⬇️</span>
+                    </button>
+                </div>
+                <div class="records-list" id="restockContainer">
+                    <div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無進貨紀錄</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQWDfbcth0RfOJGsbueyWiY93gXUXinWy4bFhl3Qo_RExKyhJ_M1VvYpwlXKE49WGZ/exec";
+        
+        let allRecords = [];
