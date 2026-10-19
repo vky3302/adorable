@@ -68,11 +68,11 @@
         </header>
 
         <div class="tabs-container">
-            <button class="tab-btn active" id="tabRestock" onclick="switchTab('restock')">📦 1. 東大門進貨</button>
-            <button class="tab-btn" id="tabExpense" onclick="switchTab('expense')">🫜 2. 收支表</button>
+            <button class="tab-btn active" id="tabRestock" onclick="switchTab('restock')">📦 東大門進貨</button>
+            <button class="tab-btn" id="tabExpense" onclick="switchTab('expense')">🫜 收支表</button>
         </div>
 
-        <!-- 1. 東大門進貨表 -->
+        <!-- 東大門進貨表 -->
         <div id="restockSection" style="display: flex; flex-direction: column; gap: 16px;">
             <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
                 <input type="month" id="restockMonthFilter" onchange="renderRestockRecords()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" />
@@ -90,7 +90,6 @@
                             <option value="KRW">₩ KRW</option>
                             <option value="TWD">NT$ TWD</option>
                         </select>
-                        <select id="rPayment"></select>
                         <button type="submit" class="btn-submit">新增進貨紀錄</button>
                     </div>
                 </form>
@@ -105,7 +104,7 @@
             </div>
         </div>
 
-        <!-- 2. 收支表 -->
+        <!-- 收支表 -->
         <div id="expenseSection" style="display: none; flex-direction: column; gap: 16px;">
             <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
                 <input type="month" id="monthFilter" onchange="renderExpenseRecords()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" />
@@ -175,7 +174,6 @@
             document.getElementById('restockMonthFilter').value = yyyyMm;
             document.getElementById('monthFilter').value = yyyyMm;
 
-            populateSelect('rPayment', paymentOptions);
             populateSelect('ePayment', paymentOptions);
             populateSelect('eSubCategory', subCategories);
 
@@ -213,7 +211,7 @@
             return !isNaN(d.getTime()) ? `${d.getMonth() + 1}/${d.getDate()}` : dateVal;
         }
 
-        // --- 1. 東大門進貨表邏輯 ---
+        // --- 東大門進貨表邏輯 ---
         async function handleRestockSubmit(e) {
             e.preventDefault();
             const price = Number(document.getElementById('rPrice').value) || 0;
@@ -232,8 +230,7 @@
                 price: price,
                 qty: qty,
                 total: total,
-                currency: document.getElementById('rCurrency').value,
-                payment: document.getElementById('rPayment').value
+                currency: document.getElementById('rCurrency').value
             };
 
             restockRecords.unshift(record);
@@ -276,7 +273,6 @@
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <span class="record-date">${formatShortDate(r.date)}</span>
                             <strong>${r.store}</strong>
-                            <span class="record-payment">💳 ${r.payment}</span>
                         </div>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
                             ${r.item} | 單價: ${r.price.toLocaleString()} × ${r.qty}件
@@ -291,7 +287,7 @@
             });
         }
 
-        // --- 2. 收支表邏輯 ---
+        // --- 收支表邏輯 ---
         async function handleExpenseSubmit(e) {
             e.preventDefault();
             const dateVal = document.getElementById('eDate').value;
