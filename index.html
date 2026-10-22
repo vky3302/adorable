@@ -132,12 +132,16 @@
                             <option value="收入">收入</option>
                         </select>
                         <select id="eSubCategory"></select>
+                        <!-- 新增：細項輸入欄位 -->
+                        <input type="text" id="eDetail" placeholder="細項 (可選填)" />
                         <input type="number" id="eAmount" placeholder="金額" required />
                         <select id="eCurrency">
                             <option value="KRW">₩ KRW</option>
                             <option value="TWD">NT$ TWD</option>
                         </select>
                         <select id="ePayment"></select>
+                        <!-- 新增：備註輸入欄位（跨整行） -->
+                        <input type="text" id="eNote" placeholder="備註 (可選填)" style="grid-column: 1 / -1;" />
                         <button type="submit" class="btn-submit">新增收支紀錄</button>
                     </div>
                 </form>
@@ -250,7 +254,7 @@
         function toggleRestockSort() {
             isRestockDesc = !isRestockDesc;
             document.getElementById('restockSortIcon').textContent = isRestockDesc ? '⬇️' : '⬆️';
-            restockRecords.sort((a, b) => isRestockDesc ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
+            restockRecords.sort((a, b) => isRestockDesc ? new Date(b.date) - new Date(dateVal = a.date) : new Date(a.date) - new Date(b.date));
             renderRestockRecords();
         }
 
@@ -298,9 +302,11 @@
                 date: dateVal,
                 typeVal: document.getElementById('eType').value,
                 subCategory: document.getElementById('eSubCategory').value,
+                detail: document.getElementById('eDetail').value.trim(), // 細項
                 amount: Number(document.getElementById('eAmount').value) || 0,
                 currency: document.getElementById('eCurrency').value,
-                payment: document.getElementById('ePayment').value
+                payment: document.getElementById('ePayment').value,
+                note: document.getElementById('eNote').value.trim()     // 備註
             };
 
             expenseRecords.unshift(record);
@@ -308,7 +314,9 @@
             renderExpenseRecords();
             updateSummary();
 
+            document.getElementById('eDetail').value = '';
             document.getElementById('eAmount').value = '';
+            document.getElementById('eNote').value = '';
 
             try {
                 fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
@@ -337,12 +345,25 @@
             filtered.forEach(r => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'record-item';
+                
+                // 組裝細項與備註的顯示內容
+                let subText = r.subCategory;
+                if (r.detail) subText += ` <span style="color: var(--text-muted); font-size: 0.85rem;">(${r.detail})</span>`;
+                
+                let noteHtml = '';
+                if (r.note) {
+                    noteHtml = `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">備註：${r.note}</div>`;
+                }
+
                 itemDiv.innerHTML = `
-                    <div class="record-left">
-                        <span class="record-date">${formatShortDate(r.date)}</span>
-                        <span class="badge-type ${r.typeVal === '支出' ? 'badge-expense' : 'badge-income'}">${r.typeVal}</span>
-                        <strong>${r.subCategory}</strong>
-                        <span class="record-payment">💳 ${r.payment}</span>
+                    <div class="record-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="record-date">${formatShortDate(r.date)}</span>
+                            <span class="badge-type ${r.typeVal === '支出' ? 'badge-expense' : 'badge-income'}">${r.typeVal}</span>
+                            <strong>${subText}</strong>
+                            <span class="record-payment">💳 ${r.payment}</span>
+                        </div>
+                        ${noteHtml}
                     </div>
                     <div class="record-right">
                         <span class="record-amount">${r.currency === 'KRW' ? '₩' : 'NT$'} ${r.amount.toLocaleString()}</span>
