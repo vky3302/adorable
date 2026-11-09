@@ -19,7 +19,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
         body { background-color: var(--bg-color); color: var(--text-main); padding: 24px 16px; display: flex; justify-content: center;}
-        .container { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 16px;}
+        .container { width: 100%; max-width: 960px; display: flex; flex-direction: column; gap: 16px;}
         header { display: flex; justify-content: space-between; align-items: center;}
         .status-badge { font-size: 0.9rem; color: var(--income-color); display: flex; align-items: center; gap: 6px; font-weight: 500;}
         .status-dot { width: 8px; height: 8px; background-color: var(--income-color); border-radius: 50%;}
@@ -61,6 +61,13 @@
         .records-title { font-size: 0.95rem; font-weight: 600; color: var(--text-muted);}
         .btn-sort { background-color: #faf9f8; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; gap: 4px;}
         .btn-sort:hover { background-color: var(--border-color);}
+        
+        /* 表格樣式 */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .summary-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        .summary-table th { background-color: var(--tag-bg); color: var(--text-muted); font-weight: 600; padding: 12px 10px; border-bottom: 2px solid var(--border-color); white-space: nowrap;}
+        .summary-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); color: var(--text-main); vertical-align: middle;}
+        .summary-table tr:hover { background-color: #faf9f8; }
         
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr 1fr; }
@@ -201,9 +208,9 @@
             </div>
             <div class="card">
                 <div class="records-header">
-                    <span class="records-title">📊 每月營運總結紀錄</span>
+                    <span class="records-title">📊 每月營運總結對照表</span>
                 </div>
-                <div class="records-list" id="monthlyContainer"></div>
+                <div class="table-responsive" id="monthlyContainer"></div>
             </div>
         </div>
     </div>
@@ -460,7 +467,6 @@
                 note: document.getElementById('mNote').value.trim()
             };
 
-            // 如果該月份已存在則替換，否則新增
             monthlyRecords = monthlyRecords.filter(r => r.month !== monthVal);
             monthlyRecords.unshift(record);
             monthlyRecords.sort((a, b) => new Date(b.month) - new Date(a.month));
@@ -482,38 +488,59 @@
 
         function renderMonthlyRecords() {
             const container = document.getElementById('monthlyContainer');
-            container.innerHTML = '';
             
             if (monthlyRecords.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無每月總結紀錄</div>`;
                 return;
             }
             
+            let tableHTML = `
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>月份</th>
+                            <th>總收入</th>
+                            <th>總支出</th>
+                            <th>淨利潤</th>
+                            <th>包裹數</th>
+                            <th>行銷費用</th>
+                            <th>粉絲數</th>
+                            <th>熱銷商品</th>
+                            <th>備註</th>
+                            <th style="text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
             monthlyRecords.forEach(r => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'record-item';
                 const netProfit = r.income - r.expense;
+                const netColor = netProfit >= 0 ? 'var(--income-color)' : 'var(--expense-color)';
                 
-                itemDiv.innerHTML = `
-                    <div class="record-left" style="flex-direction: column; align-items: flex-start; gap: 6px; width: 100%;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px;">
-                            <strong style="font-size: 1.05rem; color: var(--primary-hover);">📅 ${r.month} 總結</strong>
+                tableHTML += `
+                    <tr>
+                        <td><strong>${r.month}</strong></td>
+                        <td>NT$ ${r.income.toLocaleString()}</td>
+                        <td>NT$ ${r.expense.toLocaleString()}</td>
+                        <td style="font-weight: 700; color: ${netColor};">NT$ ${netProfit.toLocaleString()}</td>
+                        <td>${r.packages.toLocaleString()} 件</td>
+                        <td>NT$ ${r.marketing.toLocaleString()}</td>
+                        <td>${r.followers.toLocaleString()} 人</td>
+                        <td>${r.bestSeller || '-'}</td>
+                        <td style="color: var(--text-muted);">${r.note || '-'}</td>
+                        <td style="text-align: center;">
                             <button class="btn-delete" onclick="deleteRecord('monthly', '${r.id}')">🗑️</button>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; width: 100%; font-size: 0.9rem;">
-                            <div>💰 總收入: NT$ ${r.income.toLocaleString()}</div>
-                            <div>💸 總支出: NT$ ${r.expense.toLocaleString()}</div>
-                            <div style="font-weight: 700; color: ${netProfit >= 0 ? 'var(--income-color)' : 'var(--expense-color)'};">📈 淨利: NT$ ${netProfit.toLocaleString()}</div>
-                            <div>📦 包裹數: ${r.packages.toLocaleString()} 件</div>
-                            <div>📢 行銷費: NT$ ${r.marketing.toLocaleString()}</div>
-                            <div>👥 粉絲數: ${r.followers.toLocaleString()} 人</div>
-                        </div>
-                        ${r.bestSeller ? `<div style="font-size: 0.85rem; color: var(--text-main);">🔥 熱銷商品：${r.bestSeller}</div>` : ''}
-                        ${r.note ? `<div style="font-size: 0.85rem; color: var(--text-muted);">📝 備註：${r.note}</div>` : ''}
-                    </div>
+                        </td>
+                    </tr>
                 `;
-                container.appendChild(itemDiv);
             });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
         }
 
         async function deleteRecord(type, id) {
