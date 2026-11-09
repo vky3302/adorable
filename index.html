@@ -7,58 +7,66 @@
     <style>
         :root {
             --primary-color: #a59b98;     /* 莫蘭迪奶茶粉/灰棕 */
-            --primary-hover: #8d8380;     
-            --bg-color: #f4f2f1;          
+            --primary-hover: #8d8380;
+            --bg-color: #f4f2f1;
             --card-bg: #ffffff;
-            --text-main: #4d4948;         
-            --text-muted: #948e8d;        
-            --border-color: #e8e4e3;      
+            --text-main: #4d4948;
+            --text-muted: #948e8d;
+            --border-color: #e8e4e3;
             --expense-color: #c48482;     /* 莫蘭迪紅 */
             --income-color: #859c8f;      /* 莫蘭迪綠 */
-            --tag-bg: #f0eceb;            
+            --tag-bg: #f0eceb;
         }
-        * {box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
-        body {background-color: var(--bg-color); color: var(--text-main); padding: 24px 16px; display: flex; justify-content: center;}
-        .container {width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 16px;}
-        header {display: flex; justify-content: space-between; align-items: center;}
-        .status-badge {font-size: 0.9rem; color: var(--income-color); display: flex; align-items: center; gap: 6px; font-weight: 500;}
-        .status-dot {width: 8px; height: 8px; background-color: var(--income-color); border-radius: 50%;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 24px 16px; display: flex; justify-content: center;}
+        .container { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 16px;}
+        header { display: flex; justify-content: space-between; align-items: center;}
+        .status-badge { font-size: 0.9rem; color: var(--income-color); display: flex; align-items: center; gap: 6px; font-weight: 500;}
+        .status-dot { width: 8px; height: 8px; background-color: var(--income-color); border-radius: 50%;}
         
-        .tabs-container {display: grid; grid-template-columns: 1fr 1fr; background-color: var(--border-color); padding: 4px; border-radius: 12px; gap: 4px;}
-        .tab-btn {padding: 10px; border: none; border-radius: 8px; background: transparent; font-size: 1.05rem; font-weight: 700; color: var(--text-muted); text-align: center; cursor: pointer; transition: all 0.2s;}
-        .tab-btn.active {background: var(--primary-color); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);}
+        .tabs-container { display: grid; grid-template-columns: repeat(3, 1fr); background-color: var(--border-color); padding: 4px; border-radius: 12px; gap: 4px;}
+        .tab-btn { padding: 10px; border: none; border-radius: 8px; background: transparent; font-size: 0.95rem; font-weight: 700; color: var(--text-muted); text-align: center; cursor: pointer; transition: all 0.2s;}
+        .tab-btn.active { background: var(--primary-color); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);}
         
-        .card {background-color: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); border: 1px solid var(--border-color);}
-        .summary-grid {display: grid; grid-template-columns: 1fr 1fr; gap: 20px;}
-        .summary-box h3 {font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;}
-        .summary-amount {font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main);}
-        .summary-meta {display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);}
+        .card { background-color: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); border: 1px solid var(--border-color);}
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px;}
+        .summary-box h3 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;}
+        .summary-amount { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main);}
+        .summary-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);}
         
-        .form-grid {display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;}
-        input, select {width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background-color: #faf9f8; outline: none; color: var(--text-main);}
-        input:focus, select:focus {border-color: var(--primary-color); background-color: #fff;}
-        .btn-submit {grid-column: 1 / -1; background-color: var(--primary-color); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; margin-top: 4px;}
-        .btn-submit:hover {background-color: var(--primary-hover);}
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;}
+        .monthly-form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         
-        .records-list {display: flex; flex-direction: column;}
-        .record-item {display: flex; justify-content: space-between; align-items: center; padding: 14px 10px; border-bottom: 1px solid var(--border-color);}
-        .record-item:last-child {border-bottom: none;}
-        .record-left {display: flex; align-items: center; gap: 10px; font-size: 0.95rem; flex-wrap: wrap;}
-        .record-date {font-size: 0.85rem; font-weight: 600; color: var(--text-muted); min-width: 42px;}
-        .badge-type {font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 600;}
-        .badge-expense {background-color: #f6eaea; color: var(--expense-color);}
-        .badge-income {background-color: #eaf0ec; color: var(--income-color);}
-        .record-payment {font-size: 0.8rem; color: var(--text-main); background: var(--tag-bg); padding: 2px 6px; border-radius: 4px;}
-        .record-right {display: flex; align-items: center; gap: 14px;}
-        .record-amount {font-weight: 700; font-size: 1rem;}
-        .btn-delete {background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 4px; border-radius: 4px; transition: color 0.2s;}
-        .btn-delete:hover {color: var(--expense-color);}
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background-color: #faf9f8; outline: none; color: var(--text-main);}
+        input:focus, select:focus, textarea:focus { border-color: var(--primary-color); background-color: #fff;}
         
-        .records-header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);}
-        .records-title {font-size: 0.95rem; font-weight: 600; color: var(--text-muted);}
-        .btn-sort {background-color: #faf9f8; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; gap: 4px;}
-        .btn-sort:hover {background-color: var(--border-color);}
-        @media (max-width: 600px) {.form-grid {grid-template-columns: 1fr 1fr;} .summary-grid {grid-template-columns: 1fr;}}
+        .btn-submit { grid-column: 1 / -1; background-color: var(--primary-color); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; margin-top: 4px;}
+        .btn-submit:hover { background-color: var(--primary-hover);}
+        
+        .records-list { display: flex; flex-direction: column;}
+        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 10px; border-bottom: 1px solid var(--border-color);}
+        .record-item:last-child { border-bottom: none;}
+        .record-left { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; flex-wrap: wrap;}
+        .record-date { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); min-width: 42px;}
+        .badge-type { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 600;}
+        .badge-expense { background-color: #f6eaea; color: var(--expense-color);}
+        .badge-income { background-color: #eaf0ec; color: var(--income-color);}
+        .record-payment { font-size: 0.8rem; color: var(--text-main); background: var(--tag-bg); padding: 2px 6px; border-radius: 4px;}
+        .record-right { display: flex; align-items: center; gap: 14px;}
+        .record-amount { font-weight: 700; font-size: 1rem;}
+        .btn-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 4px; border-radius: 4px; transition: color 0.2s;}
+        .btn-delete:hover { color: var(--expense-color);}
+        
+        .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);}
+        .records-title { font-size: 0.95rem; font-weight: 600; color: var(--text-muted);}
+        .btn-sort { background-color: #faf9f8; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; gap: 4px;}
+        .btn-sort:hover { background-color: var(--border-color);}
+        
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .monthly-form-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -66,10 +74,11 @@
         <header>
             <div class="status-badge"><span class="status-dot"></span> 💰 Adorable 記帳連線中</div>
         </header>
-
+        
         <div class="tabs-container">
             <button class="tab-btn active" id="tabRestock" onclick="switchTab('restock')">📦 東大門進貨</button>
             <button class="tab-btn" id="tabExpense" onclick="switchTab('expense')">🫜 收支表</button>
+            <button class="tab-btn" id="tabMonthly" onclick="switchTab('monthly')">📊 每月總結</button>
         </div>
 
         <!-- 東大門進貨表 -->
@@ -77,7 +86,6 @@
             <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
                 <input type="month" id="restockMonthFilter" onchange="renderRestockRecords()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" />
             </div>
-
             <div class="card">
                 <form onsubmit="handleRestockSubmit(event)">
                     <div class="form-grid">
@@ -94,7 +102,6 @@
                     </div>
                 </form>
             </div>
-
             <div class="card">
                 <div class="records-header">
                     <span class="records-title">📦 進貨明細清單</span>
@@ -109,7 +116,6 @@
             <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
                 <input type="month" id="monthFilter" onchange="renderExpenseRecords()" style="width: auto; padding: 6px 12px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;" />
             </div>
-
             <div class="card summary-grid">
                 <div class="summary-box">
                     <h3>韓幣 (KRW) 淨利潤</h3>
@@ -122,7 +128,6 @@
                     <div class="summary-meta"><span id="twdIncome">總收入: NT$ 0</span><span id="twdExpense">總支出: NT$ 0</span></div>
                 </div>
             </div>
-
             <div class="card">
                 <form onsubmit="handleExpenseSubmit(event)">
                     <div class="form-grid">
@@ -132,7 +137,6 @@
                             <option value="收入">收入</option>
                         </select>
                         <select id="eSubCategory"></select>
-                        <!-- 新增：細項輸入欄位 -->
                         <input type="text" id="eDetail" placeholder="細項 (可選填)" />
                         <input type="number" id="eAmount" placeholder="金額" required />
                         <select id="eCurrency">
@@ -140,13 +144,11 @@
                             <option value="TWD">NT$ TWD</option>
                         </select>
                         <select id="ePayment"></select>
-                        <!-- 新增：備註輸入欄位（跨整行） -->
                         <input type="text" id="eNote" placeholder="備註 (可選填)" style="grid-column: 1 / -1;" />
                         <button type="submit" class="btn-submit">新增收支紀錄</button>
                     </div>
                 </form>
             </div>
-
             <div class="card">
                 <div class="records-header">
                     <span class="records-title">📝 收支明細清單</span>
@@ -155,16 +157,65 @@
                 <div class="records-list" id="expenseContainer"></div>
             </div>
         </div>
+
+        <!-- 每月總結分頁 -->
+        <div id="monthlySection" style="display: none; flex-direction: column; gap: 16px;">
+            <div class="card">
+                <form onsubmit="handleMonthlySubmit(event)">
+                    <div class="monthly-form-grid">
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">選擇月份</label>
+                            <input type="month" id="mMonth" required />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">總收入 (NT$)</label>
+                            <input type="number" id="mIncome" placeholder="總收入金額" required />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">總支出 (NT$)</label>
+                            <input type="number" id="mExpense" placeholder="總支出金額" required />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">包裹數</label>
+                            <input type="number" id="mPackages" placeholder="當月總包裹數" />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">行銷費用 (NT$)</label>
+                            <input type="number" id="mMarketing" placeholder="廣告行銷花費" />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">粉絲數</label>
+                            <input type="number" id="mFollowers" placeholder="月底粉絲追蹤數" />
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">熱銷商品</label>
+                            <input type="text" id="mBestSeller" placeholder="例如：美式羊毛西外、氣質V領針織衫..." />
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">備註</label>
+                            <textarea id="mNote" placeholder="當月營運心得或重要事件備註..." rows="2" style="resize: vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">儲存每月總結</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <div class="records-header">
+                    <span class="records-title">📊 每月營運總結紀錄</span>
+                </div>
+                <div class="records-list" id="monthlyContainer"></div>
+            </div>
+        </div>
     </div>
 
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQWDfbcth0RfOJGsbueyWiY93gXUXinWy4bFhl3Qo_RExKyhJ_M1VvYpwlXKE49WGZ/exec";
-        
         const subCategories = ['工作室房租', '進貨成本', '包材耗材', '國際運費', '包裹稅金', '廣告行銷', '網拍收入', '小禮物', '薪水', '稅金', '退款', '運費', '官網費用'];
         const paymentOptions = ['dawho', 'daway', '國泰世華', '台新', '우리', '대한', '네이버카드', 'cash'];
-
+        
         let restockRecords = [];
         let expenseRecords = [];
+        let monthlyRecords = [];
         let isRestockDesc = true;
         let isExpenseDesc = true;
 
@@ -177,10 +228,10 @@
             document.getElementById('eDate').value = todayStr;
             document.getElementById('restockMonthFilter').value = yyyyMm;
             document.getElementById('monthFilter').value = yyyyMm;
-
+            document.getElementById('mMonth').value = yyyyMm;
+            
             populateSelect('ePayment', paymentOptions);
             populateSelect('eSubCategory', subCategories);
-
             fetchRecords();
         };
 
@@ -196,17 +247,13 @@
         }
 
         function switchTab(tab) {
-            if (tab === 'restock') {
-                document.getElementById('restockSection').style.display = 'flex';
-                document.getElementById('expenseSection').style.display = 'none';
-                document.getElementById('tabRestock').classList.add('active');
-                document.getElementById('tabExpense').classList.remove('active');
-            } else {
-                document.getElementById('restockSection').style.display = 'none';
-                document.getElementById('expenseSection').style.display = 'flex';
-                document.getElementById('tabRestock').classList.remove('active');
-                document.getElementById('tabExpense').classList.add('active');
-            }
+            document.getElementById('restockSection').style.display = tab === 'restock' ? 'flex' : 'none';
+            document.getElementById('expenseSection').style.display = tab === 'expense' ? 'flex' : 'none';
+            document.getElementById('monthlySection').style.display = tab === 'monthly' ? 'flex' : 'none';
+            
+            document.getElementById('tabRestock').classList.toggle('active', tab === 'restock');
+            document.getElementById('tabExpense').classList.toggle('active', tab === 'expense');
+            document.getElementById('tabMonthly').classList.toggle('active', tab === 'monthly');
         }
 
         function formatShortDate(dateVal) {
@@ -223,7 +270,7 @@
             const qty = inputQty === '' ? 1 : Number(inputQty);
             const total = price * qty;
             const dateVal = document.getElementById('rDate').value;
-
+            
             const record = {
                 type: 'restock',
                 action: 'add',
@@ -236,16 +283,16 @@
                 total: total,
                 currency: document.getElementById('rCurrency').value
             };
-
+            
             restockRecords.unshift(record);
             if (dateVal) document.getElementById('restockMonthFilter').value = dateVal.substring(0, 7);
             renderRestockRecords();
-
+            
             document.getElementById('rStore').value = '';
             document.getElementById('rItem').value = '';
             document.getElementById('rPrice').value = '';
             document.getElementById('rQty').value = '';
-
+            
             try {
                 fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
             } catch (err) { console.error(err); }
@@ -254,7 +301,7 @@
         function toggleRestockSort() {
             isRestockDesc = !isRestockDesc;
             document.getElementById('restockSortIcon').textContent = isRestockDesc ? '⬇️' : '⬆️';
-            restockRecords.sort((a, b) => isRestockDesc ? new Date(b.date) - new Date(dateVal = a.date) : new Date(a.date) - new Date(b.date));
+            restockRecords.sort((a, b) => isRestockDesc ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
             renderRestockRecords();
         }
 
@@ -263,12 +310,12 @@
             container.innerHTML = '';
             const selectedMonth = document.getElementById('restockMonthFilter').value;
             const filtered = restockRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
-
+            
             if (filtered.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無進貨紀錄</div>`;
                 return;
             }
-
+            
             filtered.forEach(r => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'record-item';
@@ -302,22 +349,21 @@
                 date: dateVal,
                 typeVal: document.getElementById('eType').value,
                 subCategory: document.getElementById('eSubCategory').value,
-                detail: document.getElementById('eDetail').value.trim(), // 細項
+                detail: document.getElementById('eDetail').value.trim(),
                 amount: Number(document.getElementById('eAmount').value) || 0,
                 currency: document.getElementById('eCurrency').value,
                 payment: document.getElementById('ePayment').value,
-                note: document.getElementById('eNote').value.trim()     // 備註
+                note: document.getElementById('eNote').value.trim()
             };
-
+            
             expenseRecords.unshift(record);
             if (dateVal) document.getElementById('monthFilter').value = dateVal.substring(0, 7);
             renderExpenseRecords();
-            updateSummary();
-
+            
             document.getElementById('eDetail').value = '';
             document.getElementById('eAmount').value = '';
             document.getElementById('eNote').value = '';
-
+            
             try {
                 fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
             } catch (err) { console.error(err); }
@@ -335,26 +381,20 @@
             container.innerHTML = '';
             const selectedMonth = document.getElementById('monthFilter').value;
             const filtered = expenseRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
-
+            
             if (filtered.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無收支紀錄</div>`;
                 updateSummary();
                 return;
             }
-
+            
             filtered.forEach(r => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'record-item';
-                
-                // 組裝細項與備註的顯示內容
                 let subText = r.subCategory;
                 if (r.detail) subText += ` <span style="color: var(--text-muted); font-size: 0.85rem;">(${r.detail})</span>`;
+                let noteHtml = r.note ? `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">備註：${r.note}</div>` : '';
                 
-                let noteHtml = '';
-                if (r.note) {
-                    noteHtml = `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">備註：${r.note}</div>`;
-                }
-
                 itemDiv.innerHTML = `
                     <div class="record-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -379,7 +419,7 @@
             const selectedMonth = document.getElementById('monthFilter').value;
             const filtered = expenseRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
             let krwExp = 0, krwInc = 0, twdExp = 0, twdInc = 0;
-
+            
             filtered.forEach(r => {
                 if (r.currency === 'KRW') {
                     if (r.typeVal === '支出') krwExp += r.amount; else krwInc += r.amount;
@@ -387,19 +427,93 @@
                     if (r.typeVal === '支出') twdExp += r.amount; else twdInc += r.amount;
                 }
             });
-
+            
             const krwNet = krwInc - krwExp;
             const twdNet = twdInc - twdExp;
-
+            
             document.getElementById('krwTotal').textContent = `₩ ${krwNet.toLocaleString()}`;
             document.getElementById('krwTotal').style.color = krwNet < 0 ? '#c48482' : 'var(--text-main)';
             document.getElementById('krwIncome').textContent = `總收入: ₩ ${krwInc.toLocaleString()}`;
             document.getElementById('krwExpense').textContent = `總支出: ₩ ${krwExp.toLocaleString()}`;
-
+            
             document.getElementById('twdTotal').textContent = `NT$ ${twdNet.toLocaleString()}`;
             document.getElementById('twdTotal').style.color = twdNet < 0 ? '#c48482' : 'var(--text-main)';
             document.getElementById('twdIncome').textContent = `總收入: NT$ ${twdInc.toLocaleString()}`;
             document.getElementById('twdExpense').textContent = `總支出: NT$ ${twdExp.toLocaleString()}`;
+        }
+
+        // --- 每月總結分頁邏輯 ---
+        async function handleMonthlySubmit(e) {
+            e.preventDefault();
+            const monthVal = document.getElementById('mMonth').value;
+            const record = {
+                type: 'monthly_summary',
+                action: 'add',
+                id: 'm_' + Date.now(),
+                month: monthVal,
+                income: Number(document.getElementById('mIncome').value) || 0,
+                expense: Number(document.getElementById('mExpense').value) || 0,
+                packages: Number(document.getElementById('mPackages').value) || 0,
+                marketing: Number(document.getElementById('mMarketing').value) || 0,
+                followers: Number(document.getElementById('mFollowers').value) || 0,
+                bestSeller: document.getElementById('mBestSeller').value.trim(),
+                note: document.getElementById('mNote').value.trim()
+            };
+
+            // 如果該月份已存在則替換，否則新增
+            monthlyRecords = monthlyRecords.filter(r => r.month !== monthVal);
+            monthlyRecords.unshift(record);
+            monthlyRecords.sort((a, b) => new Date(b.month) - new Date(a.month));
+            
+            renderMonthlyRecords();
+            
+            document.getElementById('mIncome').value = '';
+            document.getElementById('mExpense').value = '';
+            document.getElementById('mPackages').value = '';
+            document.getElementById('mMarketing').value = '';
+            document.getElementById('mFollowers').value = '';
+            document.getElementById('mBestSeller').value = '';
+            document.getElementById('mNote').value = '';
+
+            try {
+                fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
+            } catch (err) { console.error(err); }
+        }
+
+        function renderMonthlyRecords() {
+            const container = document.getElementById('monthlyContainer');
+            container.innerHTML = '';
+            
+            if (monthlyRecords.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無每月總結紀錄</div>`;
+                return;
+            }
+            
+            monthlyRecords.forEach(r => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'record-item';
+                const netProfit = r.income - r.expense;
+                
+                itemDiv.innerHTML = `
+                    <div class="record-left" style="flex-direction: column; align-items: flex-start; gap: 6px; width: 100%;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px;">
+                            <strong style="font-size: 1.05rem; color: var(--primary-hover);">📅 ${r.month} 總結</strong>
+                            <button class="btn-delete" onclick="deleteRecord('monthly', '${r.id}')">🗑️</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; width: 100%; font-size: 0.9rem;">
+                            <div>💰 總收入: NT$ ${r.income.toLocaleString()}</div>
+                            <div>💸 總支出: NT$ ${r.expense.toLocaleString()}</div>
+                            <div style="font-weight: 700; color: ${netProfit >= 0 ? 'var(--income-color)' : 'var(--expense-color)'};">📈 淨利: NT$ ${netProfit.toLocaleString()}</div>
+                            <div>📦 包裹數: ${r.packages.toLocaleString()} 件</div>
+                            <div>📢 行銷費: NT$ ${r.marketing.toLocaleString()}</div>
+                            <div>👥 粉絲數: ${r.followers.toLocaleString()} 人</div>
+                        </div>
+                        ${r.bestSeller ? `<div style="font-size: 0.85rem; color: var(--text-main);">🔥 熱銷商品：${r.bestSeller}</div>` : ''}
+                        ${r.note ? `<div style="font-size: 0.85rem; color: var(--text-muted);">📝 備註：${r.note}</div>` : ''}
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
         }
 
         async function deleteRecord(type, id) {
@@ -407,10 +521,14 @@
             if (type === 'restock') {
                 restockRecords = restockRecords.filter(r => r.id !== id);
                 renderRestockRecords();
-            } else {
+            } else if (type === 'expense') {
                 expenseRecords = expenseRecords.filter(r => r.id !== id);
                 renderExpenseRecords();
+            } else if (type === 'monthly') {
+                monthlyRecords = monthlyRecords.filter(r => r.id !== id);
+                renderMonthlyRecords();
             }
+            
             try {
                 fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'delete', id: id }) });
             } catch (err) { console.error(err); }
@@ -422,13 +540,16 @@
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     restockRecords = data.filter(d => d.type === 'restock');
-                    expenseRecords = data.filter(d => d.type === 'adorable' || !d.type);
+                    expenseRecords = data.filter(d => d.type === 'adorable' || (!d.type && !d.month));
+                    monthlyRecords = data.filter(d => d.type === 'monthly_summary');
+                    
+                    monthlyRecords.sort((a, b) => new Date(b.month) - new Date(a.month));
+                    
                     renderRestockRecords();
                     renderExpenseRecords();
+                    renderMonthlyRecords();
                 }
-            } catch (err) {
-                console.error("載入失敗:", err);
-            }
+            } catch (err) { console.error("載入失敗:", err); }
         }
     </script>
 </body>
