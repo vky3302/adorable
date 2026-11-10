@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 加入 maximum-scale=1.0 協助防止手機版亂縮放 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>🫜 Adorable 記帳系統</title>
     <style>
         :root {
@@ -18,7 +19,9 @@
             --tag-bg: #f0eceb;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 24px 16px; display: flex; justify-content: center;}
+        
+        /* 【修正 4】增加 padding-bottom: 80px 避免手機鍵盤擋住表單底部 */
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 24px 16px 80px 16px; display: flex; justify-content: center;}
         .container { width: 100%; max-width: 960px; display: flex; flex-direction: column; gap: 16px;}
         header { display: flex; justify-content: space-between; align-items: center;}
         .status-badge { font-size: 0.9rem; color: var(--income-color); display: flex; align-items: center; gap: 6px; font-weight: 500;}
@@ -37,13 +40,15 @@
         .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;}
         .monthly-form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background-color: #faf9f8; outline: none; color: var(--text-main);}
+        /* 【修正 1】將 font-size 設為 16px，徹底解決 iOS 點擊輸入框會自動放大畫面導致跑版的問題 */
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; background-color: #faf9f8; outline: none; color: var(--text-main);}
         input:focus, select:focus, textarea:focus { border-color: var(--primary-color); background-color: #fff;}
         
         .btn-submit { grid-column: 1 / -1; background-color: var(--primary-color); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; margin-top: 4px;}
         .btn-submit:hover { background-color: var(--primary-hover);}
         
-        .records-list { display: flex; flex-direction: column;}
+        /* 【修正 2】限制列表高度並允許內部捲動，避免資料太多撐破版面或點擊刪除時畫面瘋狂跳動 */
+        .records-list { display: flex; flex-direction: column; max-height: 50vh; overflow-y: auto; overscroll-behavior: contain;}
         .record-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 10px; border-bottom: 1px solid var(--border-color);}
         .record-item:last-child { border-bottom: none;}
         .record-left { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; flex-wrap: wrap;}
@@ -63,10 +68,11 @@
         .btn-sort:hover { background-color: var(--border-color);}
         
         /* 表格樣式 */
-        .table-responsive { width: 100%; overflow-x: auto; }
+        /* 同步限制總結表格高度 */
+        .table-responsive { width: 100%; overflow-x: auto; max-height: 50vh; overflow-y: auto; overscroll-behavior: contain;}
         .summary-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
         .summary-table th { background-color: var(--tag-bg); color: var(--text-muted); font-weight: 600; padding: 12px 10px; border-bottom: 2px solid var(--border-color); white-space: nowrap;}
-        .summary-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); color: var(--text-main); vertical-align: middle;}
+        .summary-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); color: var(--text-main); vertical-align: middle; white-space: nowrap;}
         .summary-table tr:hover { background-color: #faf9f8; }
         
         @media (max-width: 600px) {
@@ -172,7 +178,8 @@
                     <div class="monthly-form-grid">
                         <div>
                             <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">選擇月份</label>
-                            <input type="month" id="mMonth" required />
+                            <!-- 【修正 3】加上 onchange 事件，選擇月份時自動載入舊資料 -->
+                            <input type="month" id="mMonth" required onchange="loadMonthlyData()" />
                         </div>
                         <div>
                             <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:4px;">總收入 (NT$)</label>
@@ -314,6 +321,8 @@
 
         function renderRestockRecords() {
             const container = document.getElementById('restockContainer');
+            // 【修正 2】記下目前的捲軸位置，避免重新渲染時畫面跳到頂部
+            const scrollPos = container.scrollTop;
             container.innerHTML = '';
             const selectedMonth = document.getElementById('restockMonthFilter').value;
             const filtered = restockRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
@@ -343,6 +352,7 @@
                 `;
                 container.appendChild(itemDiv);
             });
+            container.scrollTop = scrollPos; // 還原捲軸位置
         }
 
         // --- 收支表邏輯 ---
@@ -385,6 +395,8 @@
 
         function renderExpenseRecords() {
             const container = document.getElementById('expenseContainer');
+            // 【修正 2】還原捲軸位置防跳動
+            const scrollPos = container.scrollTop;
             container.innerHTML = '';
             const selectedMonth = document.getElementById('monthFilter').value;
             const filtered = expenseRecords.filter(r => r.date && r.date.startsWith(selectedMonth));
@@ -419,6 +431,7 @@
                 `;
                 container.appendChild(itemDiv);
             });
+            container.scrollTop = scrollPos;
             updateSummary();
         }
 
@@ -450,6 +463,30 @@
         }
 
         // --- 每月總結分頁邏輯 ---
+        // 【修正 3】解決資料覆蓋遺失的問題：切換月份時，先讀取並自動填寫舊資料！
+        function loadMonthlyData() {
+            const monthVal = document.getElementById('mMonth').value;
+            const existingRecord = monthlyRecords.find(r => r.month === monthVal);
+            
+            if (existingRecord) {
+                document.getElementById('mIncome').value = existingRecord.income || '';
+                document.getElementById('mExpense').value = existingRecord.expense || '';
+                document.getElementById('mPackages').value = existingRecord.packages || '';
+                document.getElementById('mMarketing').value = existingRecord.marketing || '';
+                document.getElementById('mFollowers').value = existingRecord.followers || '';
+                document.getElementById('mBestSeller').value = existingRecord.bestSeller || '';
+                document.getElementById('mNote').value = existingRecord.note || '';
+            } else {
+                document.getElementById('mIncome').value = '';
+                document.getElementById('mExpense').value = '';
+                document.getElementById('mPackages').value = '';
+                document.getElementById('mMarketing').value = '';
+                document.getElementById('mFollowers').value = '';
+                document.getElementById('mBestSeller').value = '';
+                document.getElementById('mNote').value = '';
+            }
+        }
+
         async function handleMonthlySubmit(e) {
             e.preventDefault();
             const monthVal = document.getElementById('mMonth').value;
@@ -473,13 +510,8 @@
             
             renderMonthlyRecords();
             
-            document.getElementById('mIncome').value = '';
-            document.getElementById('mExpense').value = '';
-            document.getElementById('mPackages').value = '';
-            document.getElementById('mMarketing').value = '';
-            document.getElementById('mFollowers').value = '';
-            document.getElementById('mBestSeller').value = '';
-            document.getElementById('mNote').value = '';
+            // 提交後保留原本輸入的數值，不再強制清空，方便檢視
+            alert('✅ 該月份總結已成功更新儲存！');
 
             try {
                 fetch(GAS_API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
@@ -488,6 +520,7 @@
 
         function renderMonthlyRecords() {
             const container = document.getElementById('monthlyContainer');
+            const scrollPos = container.scrollTop;
             
             if (monthlyRecords.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;">尚無每月總結紀錄</div>`;
@@ -541,6 +574,7 @@
             `;
             
             container.innerHTML = tableHTML;
+            container.scrollTop = scrollPos;
         }
 
         async function deleteRecord(type, id) {
@@ -554,6 +588,7 @@
             } else if (type === 'monthly') {
                 monthlyRecords = monthlyRecords.filter(r => r.id !== id);
                 renderMonthlyRecords();
+                loadMonthlyData(); // 若刪除了當前正在編輯的月份，也同步清空表單
             }
             
             try {
@@ -568,13 +603,22 @@
                 if (Array.isArray(data)) {
                     restockRecords = data.filter(d => d.type === 'restock');
                     expenseRecords = data.filter(d => d.type === 'adorable' || (!d.type && !d.month));
-                    monthlyRecords = data.filter(d => d.type === 'monthly_summary');
                     
+                    // 【修正 3】過濾後端可能出現的重複月份，只保留最新的該月紀錄
+                    const rawMonthly = data.filter(d => d.type === 'monthly_summary');
+                    const monthMap = new Map();
+                    rawMonthly.forEach(r => {
+                        if (!monthMap.has(r.month) || r.id > monthMap.get(r.month).id) {
+                            monthMap.set(r.month, r);
+                        }
+                    });
+                    monthlyRecords = Array.from(monthMap.values());
                     monthlyRecords.sort((a, b) => new Date(b.month) - new Date(a.month));
                     
                     renderRestockRecords();
                     renderExpenseRecords();
                     renderMonthlyRecords();
+                    loadMonthlyData(); // 載入頁面時，自動填入這個月的舊資料（如果有的話）
                 }
             } catch (err) { console.error("載入失敗:", err); }
         }
